@@ -47,7 +47,7 @@ export const signUp = async (params: AuthCredentials) => {
   const { fullName, email, universityId, password, universityCard } = params;
 
   // RATE LIMITING
-  const ip = (await headers()).get("x-forwarded-for") || "127.0.0.1";  // GET USERS IP 
+  const ip = (await headers()).get("x-forwarded-for") || "127.0.0.1"; // GET USERS IP
   const { success } = await ratelimit.limit(ip);
 
   if (!success) return redirect("/too-fast");

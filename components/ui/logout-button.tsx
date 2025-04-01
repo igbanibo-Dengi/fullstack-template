@@ -7,13 +7,13 @@ import { useTransition } from "react";
 interface LogoutButtonProps {
   text?: string;
   variant?:
-  | "default"
-  | "link"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "ghost"
-  | null;
+    | "default"
+    | "link"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | null;
   size?: "default" | "sm" | "lg" | "icon" | null;
   className?: string;
 }

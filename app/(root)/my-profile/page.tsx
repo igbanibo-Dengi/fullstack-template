@@ -14,7 +14,6 @@ const profilePage = () => {
       >
         <Button>Logout</Button>
       </form>
-
     </>
   );
 };

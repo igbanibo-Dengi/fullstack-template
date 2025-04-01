@@ -41,9 +41,7 @@ const Header = ({ session }: { session: Session }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem>
-                <Link href='/my-profile'>
-                  Profile
-                </Link>
+                <Link href="/my-profile">Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Billing</DropdownMenuItem>
@@ -51,10 +49,7 @@ const Header = ({ session }: { session: Session }) => {
               <DropdownMenuItem>Subscription</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <LogoutButton
-                  className="w-full"
-                  variant='ghost'
-                />
+                <LogoutButton className="w-full" variant="ghost" />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
