@@ -215,7 +215,7 @@ const sendEmail = async (type: EmailType, templateParams: Record<string, any>) =
 const getTemplateId = (type: EmailType): string => {
   switch (type) {
     case EmailType.WELCOME:
-      return "template_a3z32op" // Your welcome template ID
+      return config.env.emailjs.templates.welcome // Your welcome template ID
     case EmailType.VERIFICATION:
       return config.env.emailjs.templates.verification || "" // You'll need to create this template
     case EmailType.PASSWORD_RESET:
