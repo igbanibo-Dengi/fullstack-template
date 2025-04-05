@@ -44,8 +44,7 @@ const qstashClient = new QStashClient({
 
 
 // this function is used to send an email using emailjs service
-
-// Email types enum for better type safety
+//  Email types enum for better type safety
 export enum EmailType {
   WELCOME = "welcome",
   VERIFICATION = "verification",
@@ -60,9 +59,9 @@ interface BaseEmailParams {
   subject?: string
 }
 
-
 // Welcome email parameters
 interface WelcomeEmailParams extends BaseEmailParams {
+  name: string
   companyName?: string
   websiteLink?: string
   companyEmail?: string
@@ -71,13 +70,13 @@ interface WelcomeEmailParams extends BaseEmailParams {
 
 // Verification email parameters
 interface VerificationEmailParams extends BaseEmailParams {
-  userName: string
+  name: string
   verificationLink: string
 }
 
 // Password reset email parameters
 interface PasswordResetEmailParams extends BaseEmailParams {
-  userName: string
+  name: string
   resetLink: string
 }
 
@@ -86,87 +85,92 @@ interface NotificationEmailParams extends BaseEmailParams {
   message: string
 }
 
-// Function to get template ID based on email type
-const getTemplateId = (type: EmailType): string => {
-  switch (type) {
-    case EmailType.WELCOME:
-      return config.env.emailjs.templates.welcome
-    case EmailType.VERIFICATION:
-      return config.env.emailjs.templates.verification
-    case EmailType.PASSWORD_RESET:
-      return config.env.emailjs.templates.passwordReset
-    case EmailType.NOTIFICATION:
-      return config.env.emailjs.templates.notification
-    default:
-      throw new Error(`Unknown email type: ${type}`)
-  }
-}
-
+// Default values based on your provided code
+const DEFAULT_COMPANY_NAME = "Dengi inc"
+const DEFAULT_WEBSITE_LINK = "igbanibodengi.vercel.app"
+const DEFAULT_COMPANY_EMAIL = "mcmorgan6560@gmail.com"
+const DEFAULT_LOGO_URL = "https://github.com/shadcn.png"
 
 // Send welcome email
 export const sendWelcomeEmail = async ({
   email,
-  subject = "Welcome to our platform!",
-  companyName = "Fullstack Template",
-  websiteLink = "https://fullstack-template-one.vercel.app/",
-  companyEmail = "contact@fullstack.com",
-  logoUrl = "https://github.com/shadcn.png",
-}: WelcomeEmailParams & {
+  name,
+  companyName = DEFAULT_COMPANY_NAME,
+  websiteLink = DEFAULT_WEBSITE_LINK,
+  companyEmail = DEFAULT_COMPANY_EMAIL,
+  logoUrl = DEFAULT_LOGO_URL,
+}: WelcomeEmailParams) => {
+  const templateParams = {
+    email,
+    name,
+    company_name: companyName,
+    website_link: websiteLink,
+    company_email: companyEmail,
+    logo_url: logoUrl,
+  }
+
+  return sendEmail(EmailType.WELCOME, templateParams)
+}
+
+// Send verification email
+export const sendVerificationEmail = async ({
+  email,
+  name,
+  verificationLink,
+  subject = "Verify Your Email Address",
+  companyName = DEFAULT_COMPANY_NAME,
+  websiteLink = DEFAULT_WEBSITE_LINK,
+  companyEmail = DEFAULT_COMPANY_EMAIL,
+  logoUrl = DEFAULT_LOGO_URL,
+}: VerificationEmailParams & {
   companyName?: string
   websiteLink?: string
   companyEmail?: string
   logoUrl?: string
 }) => {
   const templateParams = {
-    to_email: email,
+    email,
     subject,
+    name,
+    verification_link: verificationLink,
     company_name: companyName,
     website_link: websiteLink,
     company_email: companyEmail,
     logo_url: logoUrl,
-    from_name: companyName,
-    reply_to: companyEmail,
   }
 
-  return sendEmail(EmailType.WELCOME, templateParams)
-}
-
-
-// Send verification email
-export const sendVerificationEmail = async ({
-  email,
-  userName,
-  verificationLink,
-  subject = "Verify Your Email Address",
-}: VerificationEmailParams) => {
-  const templateParams = {
-    to_email: email,
-    subject,
-    user_name: userName,
-    verification_link: verificationLink,
-    from_name: "JS Mastery",
-    reply_to: "contact@adrianjsmastery.com",
-  }
-
+  // You'll need to create a separate template for verification emails
   return sendEmail(EmailType.VERIFICATION, templateParams)
 }
 
 // Send password reset email
 export const sendPasswordResetEmail = async ({
   email,
-  userName,
+  name,
   resetLink,
   subject = "Reset Your Password",
-}: PasswordResetEmailParams) => {
+  companyName = DEFAULT_COMPANY_NAME,
+  websiteLink = DEFAULT_WEBSITE_LINK,
+  companyEmail = DEFAULT_COMPANY_EMAIL,
+  logoUrl = DEFAULT_LOGO_URL,
+}: PasswordResetEmailParams & {
+  companyName?: string
+  websiteLink?: string
+  companyEmail?: string
+  logoUrl?: string
+}) => {
   const templateParams = {
-    to_email: email,
+    email,
     subject,
-    user_name: userName,
+    name,
     reset_link: resetLink,
-    from_name: "JS Mastery",
-    reply_to: "contact@adrianjsmastery.com",
+    company_name: companyName,
+    website_link: websiteLink,
+    company_email: companyEmail,
+    logo_url: logoUrl,
   }
 
+  // You'll need to create a separate template for password reset emails
   return sendEmail(EmailType.PASSWORD_RESET, templateParams)
 }
 
@@ -174,14 +178,12 @@ export const sendPasswordResetEmail = async ({
 export const sendNotificationEmail = async ({
   email,
   message,
-  subject = "New Notification",
+  subject
 }: NotificationEmailParams) => {
   const templateParams = {
-    to_email: email,
-    subject,
+    email,
     message,
-    from_name: "JS Mastery",
-    reply_to: "contact@adrianjsmastery.com",
+    subject,
   }
 
   return sendEmail(EmailType.NOTIFICATION, templateParams)
@@ -190,13 +192,15 @@ export const sendNotificationEmail = async ({
 // Base email sending function
 const sendEmail = async (type: EmailType, templateParams: Record<string, any>) => {
   try {
+    // Get the appropriate template ID based on email type
     const templateId = getTemplateId(type)
+    const serviceId = config.env.emailjs.serviceId
 
     const response = await emailjs.send(
-      config.env.emailjs.serviceId,
+      serviceId,
       templateId,
       templateParams,
-      config.env.emailjs.publicKey,
+      config.env.emailjs.publicKey
     )
 
     console.log(`${type} email sent successfully:`, response)
@@ -206,4 +210,42 @@ const sendEmail = async (type: EmailType, templateParams: Record<string, any>) =
     throw error
   }
 }
+
+// Function to get template ID based on email type
+const getTemplateId = (type: EmailType): string => {
+  switch (type) {
+    case EmailType.WELCOME:
+      return "template_a3z32op" // Your welcome template ID
+    case EmailType.VERIFICATION:
+      return config.env.emailjs.templates.verification || "" // You'll need to create this template
+    case EmailType.PASSWORD_RESET:
+      return config.env.emailjs.templates.passwordReset || "" // You'll need to create this template
+    case EmailType.NOTIFICATION:
+      return config.env.emailjs.templates.notification || "" // You'll need to create this template
+    default:
+      throw new Error(`Unknown email type: ${type}`)
+  }
+}
+
+
+
+// Base email sending function
+// const sendEmail = async (type: EmailType, templateParams: Record<string, any>) => {
+//   try {
+//     const templateId = getTemplateId(type)
+
+//     const response = await emailjs.send(
+//       config.env.emailjs.serviceId,
+//       templateId,
+//       templateParams,
+//       config.env.emailjs.publicKey,
+//     )
+
+//     console.log(`${type} email sent successfully:`, response)
+//     return response
+//   } catch (error) {
+//     console.error(`Failed to send ${type} email:`, error)
+//     throw error
+//   }
+// }
 
