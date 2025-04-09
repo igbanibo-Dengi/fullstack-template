@@ -8,7 +8,6 @@ import { after } from "next/server";
 import React, { ReactNode } from "react";
 
 const layout = async ({ children }: { children: ReactNode }) => {
-
   const session = await auth();
   if (!session) redirect("/sign-in");
 
@@ -27,8 +26,8 @@ const layout = async ({ children }: { children: ReactNode }) => {
     await db
       .update(users)
       .set({ lastActivityDate: new Date().toISOString().slice(0, 10) })
-      .where(eq(users.id, session.user.id))
-  })
+      .where(eq(users.id, session.user.id));
+  });
 
   return (
     <main className="h-full w-full">

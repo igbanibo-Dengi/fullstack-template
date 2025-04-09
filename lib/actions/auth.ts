@@ -36,7 +36,6 @@ export const signInWithCredentials = async (
     console.log(result.error, "Signin error");
 
     return { success: true };
-
   } catch (error) {
     console.log(error, "Signin error");
     return { success: false, error: "Signin error" };
