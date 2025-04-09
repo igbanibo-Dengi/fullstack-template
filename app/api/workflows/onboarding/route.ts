@@ -1,3 +1,5 @@
+// app>api>workflows>onboarding>route.ts
+
 import { serve } from "@upstash/workflow/nextjs";
 import { db } from "@/database/drizzle";
 import { users } from "@/database/schema";
@@ -45,10 +47,21 @@ export const { POST } = serve<InitialData>(async (context) => {
   await context.run("new-signup", async () => {
     await sendEmail({
       email,
-      subject: "Welcome to the platform",
-      message: `Welcome ${fullName}!`,
+      subject: "Welcome to Igbanibo's Platform 🎉",
+      message: `
+      <div style="font-family: Arial, sans-serif; color: #333; padding: 20px;">
+        <h2 style="color: #4F46E5;">Welcome aboard, ${fullName} 👋</h2>
+        <p>We're excited to have you join our platform!</p>
+        <p>You now have access to tools, features, and a community designed to help you grow and succeed.</p>
+        <p>If you ever have questions or need support, feel free to reach out.</p>
+        <br/>
+        <p>Cheers,</p>
+        <p><strong>The fullstack-template Team</strong></p>
+      </div>
+    `,
     });
   });
+
 
   await context.sleep("wait-for-3-days", 60 * 60 * 24 * 3);
 
