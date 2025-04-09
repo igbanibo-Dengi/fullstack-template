@@ -2,7 +2,7 @@ import { serve } from "@upstash/workflow/nextjs";
 import { db } from "@/database/drizzle";
 import { users } from "@/database/schema";
 import { eq } from "drizzle-orm";
-import { sendNotificationEmail, sendWelcomeEmail } from "@/lib/workflow";
+import { sendEmail } from "@/lib/workflow";
 
 type UserState = "non-active" | "active";
 
@@ -43,9 +43,10 @@ export const { POST } = serve<InitialData>(async (context) => {
 
   // Welcome Email
   await context.run("new-signup", async () => {
-    await sendWelcomeEmail({
+    await sendEmail({
       email,
-      name: fullName,
+      subject: "Welcome to the platform",
+      message: `Welcome ${fullName}!`,
     });
   });
 
@@ -58,7 +59,7 @@ export const { POST } = serve<InitialData>(async (context) => {
 
     if (state === "non-active") {
       await context.run("send-email-non-active", async () => {
-        await sendNotificationEmail({
+        await sendEmail({
           email,
           subject: "Are you still there?",
           message: `Hey ${fullName}, we miss you!`,
@@ -66,7 +67,7 @@ export const { POST } = serve<InitialData>(async (context) => {
       });
     } else if (state === "active") {
       await context.run("send-email-active", async () => {
-        await sendNotificationEmail({
+        await sendEmail({
           email,
           subject: "Welcome back!",
           message: `Welcome back ${fullName}!`,
